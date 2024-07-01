@@ -528,64 +528,63 @@ namespace CraftFromContainers
                         //Dbgl((kvp.Value as TileEntityLootContainer).bPlayerStorage);
                         //Dbgl(!(kvp.Value as TileEntityLootContainer).bUserAccessing);
                         var loc = kvp.Value.ToWorldPos();
-                        //if (config.range <= 0 || Vector3.Distance(pos, loc) < config.range)
+                        if (config.range <= 0 || Vector3.Distance(pos, loc) < config.range)
+                        {
+                            //TEFeatureStorage.
+                            Dbgl(kvp.Value.GetType().Name);
+                            //    if (kvp.Value is TileEntityComposite &&
+                            //            (kvp.Value as TileEntityComposite).GetFeature<TEFeatureStorage>() is object &&
+                            //            (kvp.Value as TileEntityComposite).GetFeature<TEFeatureLockable>() is object
+                            //    )
+                            //    {
+                            //        TEFeatureStorage Storage = (kvp.Value as TileEntityComposite).GetFeature<TEFeatureStorage>();
+                            //        TEFeatureLockable Lockable = (kvp.Value as TileEntityComposite).GetFeature<TEFeatureLockable>();
+                            //        Dbgl(kvp.Value.GetType().Name);
+                            //        Dbgl(Storage.bPlayerStorage);
+                            //        Dbgl(!(kvp.Value as TileEntityComposite).IsUserAccessing());
+                            //        Dbgl(!Lockable.IsLocked());
+                            //        Dbgl(!Lockable.IsUserAllowed(PlatformManager.InternalLocalUserIdentifier));
+                            //    }
+                        }
+
+                        //if (kvp.Value is TileEntityComposite &&
+                        //     (kvp.Value as TileEntityComposite).GetFeature<TEFeatureStorage>() is object &&
+                        //     (kvp.Value as TileEntityComposite).GetFeature<TEFeatureLockable>() is object
+                        //)
                         //{
-                        //    //TEFeatureStorage.
-                        //    //Dbgl(kvp.Value.GetType().Name);
-                        //    //Dbgl(.GetType().Name);
-                        //    if (kvp.Value is TileEntityComposite &&
-                        //            (kvp.Value as TileEntityComposite).GetFeature<TEFeatureStorage>() is object &&
-                        //            (kvp.Value as TileEntityComposite).GetFeature<TEFeatureLockable>() is object
+                        //    TEFeatureStorage Storage = (kvp.Value as TileEntityComposite).GetFeature<TEFeatureStorage>();
+                        //    TEFeatureLockable Lockable = (kvp.Value as TileEntityComposite).GetFeature<TEFeatureLockable>();
+
+                        //    if (Storage.bPlayerStorage && 
+                        //        (kvp.Value as TileEntityComposite).PlayerPlaced &&
+                        //        !(kvp.Value as TileEntityComposite).IsUserAccessing() &&
+                        //        (!Lockable.IsLocked() || Lockable.IsUserAllowed(PlatformManager.InternalLocalUserIdentifier))
                         //    )
                         //    {
-                        //        TEFeatureStorage Storage = (kvp.Value as TileEntityComposite).GetFeature<TEFeatureStorage>();
-                        //        TEFeatureLockable Lockable = (kvp.Value as TileEntityComposite).GetFeature<TEFeatureLockable>();
-                        //        Dbgl(kvp.Value.GetType().Name);
-                        //        Dbgl(Storage.bPlayerStorage);
-                        //        Dbgl(!(kvp.Value as TileEntityComposite).IsUserAccessing());
-                        //        Dbgl(!Lockable.IsLocked());
-                        //        Dbgl(!Lockable.IsUserAllowed(PlatformManager.InternalLocalUserIdentifier));
+                        //        knownStorageDict[loc] = Storage;
+                        //        if (config.range <= 0 || Vector3.Distance(pos, loc) < config.range)
+                        //        {
+                        //            //Dbgl(kvp.Value is TileEntityLootContainer);
+                        //            currentStorageDict[loc] = Storage;
+                        //        }
                         //    }
-                        //}
-
-                        if (kvp.Value is TileEntityComposite &&
-                             (kvp.Value as TileEntityComposite).GetFeature<TEFeatureStorage>() is object &&
-                             (kvp.Value as TileEntityComposite).GetFeature<TEFeatureLockable>() is object
-                        )
-                        {
-                            TEFeatureStorage Storage = (kvp.Value as TileEntityComposite).GetFeature<TEFeatureStorage>();
-                            TEFeatureLockable Lockable = (kvp.Value as TileEntityComposite).GetFeature<TEFeatureLockable>();
-
-                            if (Storage.bPlayerStorage && 
-                                (kvp.Value as TileEntityComposite).PlayerPlaced &&
-                                !(kvp.Value as TileEntityComposite).IsUserAccessing() &&
-                                (!Lockable.IsLocked() || Lockable.IsUserAllowed(PlatformManager.InternalLocalUserIdentifier))
-                            )
-                            {
-                                knownStorageDict[loc] = Storage;
-                                if (config.range <= 0 || Vector3.Distance(pos, loc) < config.range)
-                                {
-                                    //Dbgl(kvp.Value is TileEntityLootContainer);
-                                    currentStorageDict[loc] = Storage;
-                                }
-                            }
-                        }
-                    }
-                }
-                sync.ExitReadLock();
-            }
-        }
-        public static int GetItemCount(ItemStack[] slots, ItemValue _itemValue)
-        {
-            int num = 0;
-            for (int i = 0; i < slots.Length; i++)
-            {
-                if (slots[i].itemValue.type == _itemValue.type)
-                {
-                    num += slots[i].count;
+                    //}
                 }
             }
-            return num;
+            sync.ExitReadLock();
         }
     }
+    public static int GetItemCount(ItemStack[] slots, ItemValue _itemValue)
+    {
+        int num = 0;
+        for (int i = 0; i < slots.Length; i++)
+        {
+            if (slots[i].itemValue.type == _itemValue.type)
+            {
+                num += slots[i].count;
+            }
+        }
+        return num;
+    }
+}
 }

@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <xml>
-	<Name value="CraftFromContainers" />
+	<Name value="SYNON1M_CraftFromContainers" />
   <DisplayName  value="Craft From Containers" />
 	<Description value="Lets you craft items using resources from nearby containers." />
-	<Author value="aedenthorn" />
+	<Author value="SYNON1M" />
 	<Version value="0.6.0" />
+    <Website value="http://surl.li/qrhrxy" />
 </xml>

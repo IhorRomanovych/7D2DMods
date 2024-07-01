@@ -48,11 +48,13 @@ namespace PickLockedDoors
                 pickTimeDict.Clear();
             }
         }
+
         [HarmonyPatch(typeof(BlockDoorSecure), nameof(BlockDoorSecure.GetBlockActivationCommands))]
         static class BlockDoorSecure_GetBlockActivationCommands_Patch
         {
             static void Postfix(WorldBase _world, int _clrIdx, Vector3i _blockPos, ref BlockActivationCommand[] __result)
             {
+                Dbgl(_world.GetBlock(_clrIdx, _blockPos).GetType().Name);
                 if (!config.modEnabled || _world.IsEditor())
                     return;
                 TileEntitySecureDoor tileEntitySecureDoor = (TileEntitySecureDoor)_world.GetTileEntity(_clrIdx, _blockPos);
@@ -70,7 +72,6 @@ namespace PickLockedDoors
         [HarmonyPatch(typeof(BlockDoorSecure), nameof(BlockDoorSecure.OnBlockActivated))]
         static class BlockDoorSecure_OnBlockActivated_Patch
         {
-
             static void Postfix(WorldBase _world, string _commandName, int _cIdx, Vector3i _blockPos, BlockValue _blockValue, EntityAlive _player, ref bool __result)
             {
                 if (!config.modEnabled || _commandName != "pick")
@@ -78,10 +79,10 @@ namespace PickLockedDoors
 
                 Dbgl("Starting to pick door lock");
 
-                if (!_blockValue.Block.Properties.Values.TryGetString("LockPickItem", out string lockPickItem))
+                if (!_blockValue.Block.Properties.Values.TryGetValue("LockPickItem", out string lockPickItem))
                     lockPickItem = config.lockPickItem;
                 float lockPickBreakChance;
-                if (!_blockValue.Block.Properties.Values.TryGetString("LockPickBreakChance", out string breakString))
+                if (!_blockValue.Block.Properties.Values.TryGetValue("LockPickBreakChance", out string breakString))
                 {
                     lockPickBreakChance = config.lockPickBreakChance;
                 }
@@ -90,7 +91,7 @@ namespace PickLockedDoors
                     lockPickBreakChance = StringParsers.ParseFloat(breakString, 0, -1, NumberStyles.Any);
                 }
                 float lockPickTime;
-                if (!_blockValue.Block.Properties.Values.TryGetString("LockPickTime", out string timeString))
+                if (!_blockValue.Block.Properties.Values.TryGetValue("LockPickTime", out string timeString))
                 {
                     lockPickTime = config.lockPickTime;
                 }
@@ -98,8 +99,8 @@ namespace PickLockedDoors
                 {
                     lockPickTime = StringParsers.ParseFloat(timeString, 0, -1, NumberStyles.Any);
                 }
-                if(!pickTimeDict.ContainsKey(_blockPos))
-                    pickTimeDict[_blockPos] = lockPickTime; 
+                if (!pickTimeDict.ContainsKey(_blockPos))
+                    pickTimeDict[_blockPos] = lockPickTime;
 
                 LocalPlayerUI playerUI = (_player as EntityPlayerLocal).PlayerUI;
                 ItemValue item = ItemClass.GetItem(lockPickItem, false);
@@ -115,9 +116,9 @@ namespace PickLockedDoors
                 TimerEventData timerEventData = new TimerEventData();
                 timerEventData.CloseEvent += EventData_CloseEvent;
                 float alternateTime = -1f;
-                if (_player.rand.RandomRange(1f) < EffectManager.GetValue(PassiveEffects.LockPickBreakChance, _player.inventory.holdingItemItemValue, lockPickBreakChance, _player, null, default(FastTags), true, true, true, true, 1, true))
+                if (_player.rand.RandomRange(1f) < EffectManager.GetValue(PassiveEffects.LockPickBreakChance, _player.inventory.holdingItemItemValue, lockPickBreakChance, _player, null, default(FastTags<TagGroup.Global>), true, true, true, true, true, 1))
                 {
-                    float value = EffectManager.GetValue(PassiveEffects.LockPickTime, _player.inventory.holdingItemItemValue, lockPickTime, _player, null, default(FastTags), true, true, true, true, 1, true);
+                    float value = EffectManager.GetValue(PassiveEffects.LockPickTime, _player.inventory.holdingItemItemValue, lockPickTime, _player, null, default(FastTags<TagGroup.Global>), true, true, true, true, true, 1);
                     float num = value - ((pickTimeDict[_blockPos] == -1f) ? (value - 1f) : (pickTimeDict[_blockPos] + 1f));
                     alternateTime = _player.rand.RandomRange(num + 1f, value - 1f);
                 }
@@ -132,7 +133,7 @@ namespace PickLockedDoors
                 timerEventData.Event += EventData_Event;
                 timerEventData.alternateTime = alternateTime;
                 timerEventData.AlternateEvent += EventData_CloseEvent;
-                childByType.SetTimer(EffectManager.GetValue(PassiveEffects.LockPickTime, _player.inventory.holdingItemItemValue, config.lockPickTime, _player, null, default(FastTags), true, true, true, true, 1, true), timerEventData, pickTimeDict[_blockPos], "");
+                childByType.SetTimer(EffectManager.GetValue(PassiveEffects.LockPickTime, _player.inventory.holdingItemItemValue, config.lockPickTime, _player, null, default(FastTags<TagGroup.Global>), true, true, true, true, true, 1), timerEventData, pickTimeDict[_blockPos], "");
                 Manager.BroadcastPlayByLocalPlayer(_blockPos.ToVector3() + Vector3.one * 0.5f, "Misc/unlocking");
                 __result = true;
             }
@@ -181,7 +182,7 @@ namespace PickLockedDoors
                 GameManager.ShowTooltip(entityPlayerLocal, Localization.Get("ttLockpickBroken"));
                 uiforPlayer.xui.CollectedItemList.RemoveItemStack(itemStack);
                 float lockPickTime;
-                if (!blockValue.Block.Properties.Values.TryGetString("LockPickTime", out string timeString))
+                if (!blockValue.Block.Properties.Values.TryGetValue("LockPickTime", out string timeString))
                 {
                     lockPickTime = config.lockPickTime;
                 }
