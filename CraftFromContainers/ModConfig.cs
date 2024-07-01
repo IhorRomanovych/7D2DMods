@@ -9,6 +9,6 @@ namespace CraftFromContainers
         public bool modEnabled = true;
         public bool isDebug = true;
         public bool enableForRepairAndUpgrade = true;
-        public float range = -1;
+        public float range = -10.0f;
     }
 }
